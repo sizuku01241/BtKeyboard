@@ -124,9 +124,29 @@ Alt Win Space*6 Left Up Down Right
                     setTextColor(Color.WHITE); isAllCaps = false; typeface = Typeface.DEFAULT_BOLD
                     setBackgroundColor(Color.parseColor("#3a3a3a")); setPadding(0, 0, 0, 0)
                 }
+                
                 if (bit != null) {
                     modButtons.add(bit to btn)
-                    btn.setOnClickListener { kb.toggleMod(bit); refreshMods() }
+                    // トグル動作をなくし、「押している間だけON、離したらOFF」にする処理
+                    btn.setOnTouchListener { v, e ->
+                        when (e.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                v.setBackgroundColor(Color.parseColor("#5a8dee"))
+                                if ((kb.modifiers and bit) == 0) {
+                                    kb.toggleMod(bit)
+                                }
+                                refreshMods()
+                            }
+                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                v.setBackgroundColor(Color.parseColor("#3a3a3a"))
+                                if ((kb.modifiers and bit) != 0) {
+                                    kb.toggleMod(bit)
+                                }
+                                refreshMods()
+                            }
+                        }
+                        true
+                    }
                 } else {
                     btn.setOnTouchListener { v, e ->
                         when (e.action) {
